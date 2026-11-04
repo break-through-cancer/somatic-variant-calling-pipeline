@@ -1,0 +1,213 @@
+{
+  "form": {
+    "title": "Somatic Variant Calling",
+    "description": "MuTect1, DeepSomatic and Manta/Strelka on preprocessed BAM/CRAM, with an optional consensus across the selected callers.",
+    "type": "object",
+    "properties": {
+      "use_mutect": {
+        "title": "MuTect1",
+        "description": "Run MuTect1 (SNVs only). Needs BAM input, not CRAM.",
+        "type": "boolean",
+        "default": true
+      },
+      "use_deepsomatic": {
+        "title": "DeepSomatic",
+        "description": "Run DeepSomatic (SNVs and indels). Needs a GPU.",
+        "type": "boolean",
+        "default": true
+      },
+      "use_strelka": {
+        "title": "Strelka (with Manta)",
+        "description": "Run Manta, then Strelka2 seeded with Manta's candidate indels (SNVs and indels). Manta's SV calls are published too.",
+        "type": "boolean",
+        "default": true
+      },
+      "run_consensus": {
+        "title": "Generate consensus",
+        "description": "When two or more callers are selected, also write a consensus VCF per sample on top of each caller's own results. SNVs: a variant must be called by at least n-1 callers (both, if two). Indels: same rule over the callers that report indels (MuTect1 does not).",
+        "type": "boolean",
+        "default": true
+      },
+      "ref": {
+        "title": "Reference genome",
+        "description": "Reference genome build. The selected build must match the FASTA, dictionary, indexes, annotation VCFs, and BAM alignment build.",
+        "type": "string",
+        "enum": [
+          "hg38",
+          "hg19"
+        ],
+        "default": "hg38"
+      },
+      "ref_fasta": {
+        "title": "Reference FASTA",
+        "description": "Reference genome FASTA used by MuTect1.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*",
+        "default": "s3://broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
+      },
+      "ref_fai": {
+        "title": "Reference FASTA index",
+        "description": "FAI index corresponding to the reference FASTA.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*",
+        "default": "s3://broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
+      },
+      "ref_dict": {
+        "title": "Reference sequence dictionary",
+        "description": "Sequence dictionary corresponding to the reference FASTA.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*",
+        "default": "s3://broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
+      },
+      "call_regions": {
+        "title": "Manta/Strelka call regions (BED)",
+        "description": "Optional BED restricting Manta and Strelka to these regions, e.g. the WGS calling regions without decoy/alt contigs. Compressed and indexed automatically.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*",
+        "default": "s3://project-d29bb6ed-297c-47f6-acd2-64cd6ed46c9b/resources/data/references/genome_bed/broad_wgs_calling_regions_hg38_interval_list/regions.bed"
+      },
+      "wes": {
+        "title": "Targeted/exome data",
+        "description": "Adds --exome to Manta and Strelka. Leave off for whole-genome data.",
+        "type": "boolean",
+        "default": false
+      },
+      "num_streams_per_gpu": {
+        "title": "Streams per GPU",
+        "description": "Number of streams to process per GPU (1-6). Higher values improve throughput but use more host memory (3 was OOM-killed at 60 GB on WGS). Default: 1",
+        "type": "integer",
+        "default": 1,
+        "minimum": 1,
+        "maximum": 6
+      },
+      "enable_gvcf": {
+        "title": "Output gVCF",
+        "description": "Generate gVCF output in addition to VCF",
+        "type": "boolean",
+        "default": false
+      },
+      "scatter_count": {
+        "title": "Scatter count",
+        "description": "Number of parallel MuTect1 shards. Higher values may reduce wall-clock time but increase scheduling and compute overhead.",
+        "type": "integer",
+        "default": 200,
+        "minimum": 1
+      },
+      "padding_bp": {
+        "title": "Interval padding (bp)",
+        "description": "Number of base pairs to pad each interval shard on both sides. Padding prevents edge artifacts when scatter-gathering. NeoDisc default: 100bp.",
+        "type": "integer",
+        "default": 100,
+        "minimum": 0
+      },
+      "target_list": {
+        "title": "Target intervals",
+        "description": "Optional BED or interval file restricting MuTect1 calling. Leave blank for genome-wide calling.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*"
+      },
+      "contest_target_intervals": {
+        "title": "ContEst target intervals",
+        "description": "Optional target interval file used by ContEst. ContEst runs only when this, SNP6 BED, and HapMap VCF are all supplied.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*"
+      },
+      "fracContam": {
+        "title": "Fallback contamination fraction",
+        "description": "Contamination fraction passed to MuTect1 when the full ContEst input set is not supplied.",
+        "type": "number",
+        "default": 0.01,
+        "minimum": 0,
+        "maximum": 1
+      },
+      "dbsnp": {
+        "title": "dbSNP VCF",
+        "description": "Optional dbSNP VCF for MuTect1 annotation.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*",
+        "default": "s3://broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf"
+      },
+      "dbsnp_idx": {
+        "title": "dbSNP index",
+        "description": "Index corresponding to the dbSNP VCF.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*",
+        "default": "s3://broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx"
+      },
+      "read_group_blacklist": {
+        "title": "Read-group blacklist",
+        "description": "Optional file listing read groups that MuTect1 should ignore.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*"
+      },
+      "normal_panel": {
+        "title": "Panel of normals",
+        "description": "Optional MuTect1-compatible panel-of-normals file.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "reference",
+        "file": "**/*"
+      },
+      "downsample": {
+        "title": "Downsample coverage",
+        "description": "Maximum coverage used by MuTect1 downsampling.",
+        "type": "integer",
+        "default": 99999,
+        "minimum": 1
+      },
+      "max_mismatch_baseq_sum": {
+        "title": "Maximum mismatch base-quality sum",
+        "description": "MuTect1 maximum mismatch base-quality sum threshold.",
+        "type": "integer",
+        "default": 100,
+        "minimum": 0
+      },
+      "force_calling": {
+        "title": "Enable force calling",
+        "description": "Enable MuTect1 force-calling behavior configured by the pipeline.",
+        "type": "boolean",
+        "default": false
+      },
+      "exclude_chimeric": {
+        "title": "Exclude chimeric reads",
+        "description": "Exclude chimeric read pairs during MuTect1 calling.",
+        "type": "boolean",
+        "default": true
+      },
+      "force_calling_intervals": {
+        "title": "Force-calling interval list",
+        "description": "Optional pre-computed interval list from a previous MuTect1 run (force_calling.interval_list). When provided, takes precedence over target_list.",
+        "type": "string",
+        "multiple": false,
+        "pathType": "dataset",
+        "file": "**/*"
+      }
+    },
+    "required": [
+      "ref",
+      "ref_fasta",
+      "ref_fai",
+      "ref_dict",
+      "scatter_count"
+    ]
+  },
+  "ui": {}
+}
