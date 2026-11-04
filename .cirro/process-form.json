@@ -65,15 +65,6 @@
         "file": "**/*",
         "default": "s3://broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
       },
-      "call_regions": {
-        "title": "Manta/Strelka call regions (BED)",
-        "description": "Optional BED restricting Manta and Strelka to these regions, e.g. the WGS calling regions without decoy/alt contigs. Compressed and indexed automatically.",
-        "type": "string",
-        "multiple": false,
-        "pathType": "reference",
-        "file": "**/*",
-        "default": "s3://project-d29bb6ed-297c-47f6-acd2-64cd6ed46c9b/resources/data/references/genome_bed/broad_wgs_calling_regions_hg38_interval_list/regions.bed"
-      },
       "wes": {
         "title": "Targeted/exome data",
         "description": "Adds --exome to Manta and Strelka. Leave off for whole-genome data.",
@@ -109,13 +100,15 @@
         "minimum": 0
       },
       "target_list": {
-        "title": "Target intervals",
-        "description": "Optional BED or interval file restricting MuTect1 calling. Leave blank for genome-wide calling.",
+        "title": "Calling intervals (BED or interval list)",
+        "description": "Optional regions restricting all callers (MuTect1, Manta, Strelka), e.g. the WGS calling regions without decoy/alt contigs. Leave blank for genome-wide calling.",
         "type": "string",
         "multiple": false,
         "pathType": "reference",
-        "file": "**/*"
+        "file": "**/*",
+        "default": "s3://project-d29bb6ed-297c-47f6-acd2-64cd6ed46c9b/resources/data/references/genome_bed/broad_wgs_calling_regions_hg38_interval_list/regions.bed"
       },
+
       "contest_target_intervals": {
         "title": "ContEst target intervals",
         "description": "Optional target interval file used by ContEst. ContEst runs only when this, SNP6 BED, and HapMap VCF are all supplied.",
