@@ -113,9 +113,9 @@ workflow {
     }
 
     if ('strelka' in callers) {
-        // Optional call regions for Manta/Strelka (bgzipped + indexed first)
-        if (params.call_regions) {
-            BED_TABIX(file(params.call_regions, checkIfExists: true))
+        // Optional shared calling intervals for Manta/Strelka (converted to bgzipped BED + indexed)
+        if (params.target_list) {
+            BED_TABIX(file(params.target_list, checkIfExists: true))
             regions     = BED_TABIX.out.bed_gz
             regions_tbi = BED_TABIX.out.tbi
         } else {

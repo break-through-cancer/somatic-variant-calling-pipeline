@@ -10,7 +10,6 @@
   "ref_fasta": "$.dataset.params.ref_fasta",
   "ref_fai": "$.dataset.params.ref_fai",
   "ref_dict": "$.dataset.params.ref_dict",
-  "call_regions": "$.dataset.params.call_regions",
   "wes": "$.dataset.params.wes",
   "num_streams_per_gpu": "$.dataset.params.num_streams_per_gpu",
   "enable_gvcf": "$.dataset.params.enable_gvcf",

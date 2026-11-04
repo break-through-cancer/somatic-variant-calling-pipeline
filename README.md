@@ -35,8 +35,8 @@ with its index. Alignment is not done here.
 | DeepSomatic | SNVs, indels | NVIDIA Parabricks, needs a GPU; code from the standalone `deepsomatic` pipeline |
 | Manta -> Strelka2 | SNVs, indels (+ SVs from Manta) | Manta runs first and its candidate small indels seed Strelka (`--indelCandidates`), as in nf-core/sarek |
 
-Pick any combination on the launch form. Manta/Strelka take an optional BED of call regions
-(compressed and indexed automatically) and a `wes` switch for targeted data.
+Pick any combination on the launch form. One optional set of calling intervals (BED or interval list, `target_list`) applies to MuTect1, Manta and
+Strelka (converted/compressed/indexed automatically for Manta/Strelka); `wes` switches Manta/Strelka to targeted mode.
 
 ## Consensus
 

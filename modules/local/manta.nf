@@ -5,7 +5,7 @@
 //
 // Params used: outdir, wes.
 
-// Compress and index the optional call-regions BED. Manta and Strelka both require a
+// Convert (interval_list -> BED), compress and index the optional calling intervals. Manta and Strelka both require a
 // bgzipped, tabix-indexed BED for --callRegions.
 process BED_TABIX {
     tag "${bed.name}"
@@ -19,12 +19,15 @@ process BED_TABIX {
     path "call_regions.bed.gz.tbi", emit: tbi
 
     script:
+    // interval_list coordinates are 1-based; BED start is 0-based
+    def shift = bed.name.toLowerCase() =~ /\.bed(\.gz)?$/ ? 0 : 1
     """
     set -euo pipefail
     case "${bed}" in
         *.gz) zcat ${bed} ;;
         *)    cat ${bed} ;;
-    esac | grep -v '^#' | sort -k1,1 -k2,2n | bgzip -c > call_regions.bed.gz
+    esac | grep -v -e '^#' -e '^@' | awk -F'\\t' -v OFS='\\t' '{ print \$1, \$2 - ${shift}, \$3 }' \\
+         | sort -k1,1 -k2,2n | bgzip -c > call_regions.bed.gz
     tabix -p bed call_regions.bed.gz
     """
 }
