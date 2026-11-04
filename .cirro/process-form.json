@@ -105,8 +105,7 @@
         "type": "string",
         "multiple": false,
         "pathType": "reference",
-        "file": "**/*",
-        "default": "s3://project-d29bb6ed-297c-47f6-acd2-64cd6ed46c9b/resources/data/references/genome_bed/broad_wgs_calling_regions_hg38_interval_list/regions.bed"
+        "file": "**/*"
       },
 
       "contest_target_intervals": {
