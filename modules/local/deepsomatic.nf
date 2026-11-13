@@ -27,6 +27,15 @@ process DEEPSOMATIC {
     '''
     set -euxo pipefail
 
+    # Record which GPU the task got (ends up in the task's .command.err and the sample log)
+    if command -v nvidia-smi >/dev/null 2>&1; then
+        gpu_line="GPU: $(nvidia-smi --query-gpu=index,name,memory.total --format=csv,noheader | paste -sd ';' -)"
+    else
+        gpu_line="GPU: nvidia-smi not available"
+    fi
+    echo "$gpu_line" >&2
+    echo "$gpu_line" > !{sampleName}.log
+
     # Run DeepSomatic
     pbrun deepsomatic \
         --in-tumor-bam !{tumor_bam} \
@@ -35,7 +44,7 @@ process DEEPSOMATIC {
         --out-variants !{sampleName}.vcf.gz \
         --num-streams-per-gpu !{params.num_streams_per_gpu} \
         !{params.enable_gvcf ? '--run-deepsomatic-gvcf' : ''} \
-        > !{sampleName}.log 2>&1
+        >> !{sampleName}.log 2>&1
 
     # Verify output. pbrun may not write a .tbi, so index it if we can, but don't fail the
     # task over a missing index (the VCF itself can take hours to produce).
